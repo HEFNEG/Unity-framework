@@ -57,7 +57,7 @@ public class ActorController : MonoBehaviour {
         moveInput.x -= Keyboard.current.aKey.isPressed ? 1f : 0f;
 
         lookInput = Mouse.current.delta.ReadValue();
-        attack = Mouse.current.leftButton.isPressed;
+        attack = Mouse.current.leftButton.isPressed && Mouse.current.rightButton.isPressed;
     }
 
     private void OnLocomotion() {
