@@ -10,6 +10,7 @@ using UnityEngine;
 
 public class MeshManager : MonoBehaviour {
     public static MeshManager Instance;
+    public const int detailLevel = 1 << 8;
 
     private void Awake() {
         Instance = this;
@@ -46,8 +47,8 @@ public class MeshManager : MonoBehaviour {
     /// 在网格的局部空间下进行切割,已知切分细网格时会有问题
     /// </summary>
     /// <param name="mesh"></param>
-    /// <param name="pos"></param>
-    /// <param name="normal"></param>
+    /// <param name="pos">平面上一点</param>
+    /// <param name="normal">平面的法线</param>
     /// <param name="bigMesh"></param>
     /// <param name="smallMesh"></param>
     /// <returns></returns>
@@ -153,33 +154,42 @@ public class MeshManager : MonoBehaviour {
     /// <summary>
     /// 对边进行切割
     /// </summary>
-    /// <param name="line"></param>
-    /// <param name="pos"></param>
-    /// <param name="normal"></param>
+    /// <param name="start">线的起点</param>
+    /// <param name="end">线的终点</param>;
+    /// <param name="pos">平面上一点</param>
+    /// <param name="normal">平面的法线</param>
     /// <param name="point"></param>
     /// <returns></returns>
     private bool TryGetCrossPoint(Vector3 start, Vector3 end, Vector3 pos, Vector3 normal, out Vector3 point) {
         point = Vector3.zero;
         var line = end - start;
-        var d = math.dot(pos - start, normal) / math.dot(line, normal);
-        if (math.abs(d) > math.length(line)) {
+        var a = math.dot(pos - start, normal);
+        var b = math.dot(line, normal);
+        if (math.abs(a / b) > math.length(line)) {
             return false;
         }
 
-        point = start + d * line;
+        // warning：浮点误差警告
+        point = start + a * line / b;
         return true;
     }
 
     /// <summary>
     /// 在两个mesh中添加新的面，index[0] 被划分到 meshA，其余两个点被划分到 meshB
     /// </summary>
+    /// <param name="originVertices"></param>
+    /// <param name="originTriangles"></param>
+    /// <param name="originNormals"></param>
     /// <param name="verticesA"></param>
     /// <param name="trianglesA"></param>
+    /// <param name="normalsA"></param>
     /// <param name="verticesB"></param>
     /// <param name="trianglesB"></param>
+    /// <param name="normalsB"></param>
     /// <param name="index"></param>
     /// <param name="newPointB"></param>
     /// <param name="newPointC"></param>
+    /// <param name="slicePoints"></param>
     private void AddTriangle(Vector3[] originVertices, int[] originTriangles, Vector3[] originNormals, List<Vector3> verticesA, List<int> trianglesA, List<Vector3> normalsA, List<Vector3> verticesB, List<int> trianglesB, List<Vector3> normalsB, Vector3Int index, Vector3 newPointB, Vector3 newPointC, Dictionary<Vector3, List<Vector3>> slicePoints) {
         var newNormalB = (Vector3)math.normalize(originNormals[index[0]] + originNormals[index[1]]);
         var newNormalC = (Vector3)math.normalize(originNormals[index[0]] + originNormals[index[2]]);
@@ -208,7 +218,7 @@ public class MeshManager : MonoBehaviour {
     }
 
     /// <summary>
-    /// 补全缺失的面
+    /// 补全缺失的面,已知切割网格下方时，法线计算与实际相反
     /// </summary>
     /// <param name="verticesA"></param>
     /// <param name="trianglesA"></param>
@@ -225,12 +235,14 @@ public class MeshManager : MonoBehaviour {
         Queue<Vector3> queue = new Queue<Vector3>();
         queue.Enqueue(slicePoints.Keys.ToArray()[0]);
         var boundsA = GetMeshBounds(verticesA);
+        Debug.Log($"bound A center : {boundsA.center}");
         var boundsB = GetMeshBounds(verticesB);
         while (queue.Count != 0) {
             var current = queue.Dequeue();
             if (!slicePoints.ContainsKey(current)) {
                 continue;
             }
+
             var neighbor = slicePoints[current];
             if (neighbor.Count != 2) {
                 Debug.LogError($"neighbor error,number is {neighbor.Count}");
@@ -238,6 +250,7 @@ public class MeshManager : MonoBehaviour {
                 queue.Enqueue(neighbor[0]);
                 continue;
             }
+
             var pointA = neighbor[0];
             var pointB = neighbor[1];
             queue.Enqueue(pointA);
@@ -246,39 +259,38 @@ public class MeshManager : MonoBehaviour {
             var indexA = verticesA.Count;
             var indexB = verticesB.Count;
             var clockWiseNormal = (Vector3)math.normalize(math.cross(pointA - current, pointB - current));
-            var antiClockWiseNormal = (Vector3)math.normalize(math.cross(pointB - current, pointA - current));
+            var antiClockWiseNormal = -clockWiseNormal;
 
             verticesA.AddRange(new[] { current, pointA, pointB });
             verticesB.AddRange(new[] { current, pointA, pointB });
 
-            if (math.dot(clockWiseNormal, current - boundsA.center) > 0) {
+            Debug.Log($"face : {(current + pointA + pointB) / 3}");
+            if (math.dot(clockWiseNormal, (current + pointA + pointB) / 3 - boundsA.center) > 0) {
                 trianglesA.AddRange(new[] { indexA, indexA + 1, indexA + 2 });
-                //trianglesA.AddRange(new[] { indexA, indexA + 2, indexA + 1 }); //
-                normalsA.AddRange(new []{clockWiseNormal,clockWiseNormal,clockWiseNormal});
+                normalsA.AddRange(new[] { clockWiseNormal, clockWiseNormal, clockWiseNormal });
                 trianglesB.AddRange(new[] { indexB, indexB + 2, indexB + 1 });
-                //trianglesB.AddRange(new[] { indexB, indexB + 1, indexB + 2 }); //
-                normalsB.AddRange(new []{antiClockWiseNormal,antiClockWiseNormal,antiClockWiseNormal});
+                normalsB.AddRange(new[] { antiClockWiseNormal, antiClockWiseNormal, antiClockWiseNormal });
             } else {
                 trianglesA.AddRange(new[] { indexA, indexA + 2, indexA + 1 });
-                //trianglesA.AddRange(new[] { indexA, indexA + 1, indexA + 2 }); //
-                normalsA.AddRange(new []{antiClockWiseNormal,antiClockWiseNormal,antiClockWiseNormal});
+                normalsA.AddRange(new[] { antiClockWiseNormal, antiClockWiseNormal, antiClockWiseNormal });
                 trianglesB.AddRange(new[] { indexB, indexB + 1, indexB + 2 });
-                //trianglesB.AddRange(new[] { indexB, indexB + 2, indexB + 1 }); //
-                normalsB.AddRange(new []{clockWiseNormal,clockWiseNormal,clockWiseNormal});
+                normalsB.AddRange(new[] { clockWiseNormal, clockWiseNormal, clockWiseNormal });
             }
 
             // 更新顶点信息
             slicePoints.Remove(current);
+            int replace = 0;
             if (slicePoints.TryGetValue(pointA, out var neighborsA)) {
                 neighborsA.Remove(current);
                 neighborsA.Add(pointB);
             }
+
             if (slicePoints.TryGetValue(pointB, out var neighborsB)) {
                 neighborsB.Remove(current);
                 neighborsB.Add(pointA);
             }
 
-            if (slicePoints.Count<3) {
+            if (slicePoints.Count < 3) {
                 break;
             }
         }
@@ -291,9 +303,10 @@ public class MeshManager : MonoBehaviour {
             max.x = math.max(vertice.x, max.x);
             max.y = math.max(vertice.y, max.y);
             max.z = math.max(vertice.z, max.z);
-            min.x = math.min(vertice.x, max.x);
-            min.y = math.min(vertice.y, max.y);
-            min.z = math.min(vertice.z, max.z);
+
+            min.x = math.min(vertice.x, min.x);
+            min.y = math.min(vertice.y, min.y);
+            min.z = math.min(vertice.z, min.z);
         }
 
         return new Bounds((max + min) / 2, max - min);
