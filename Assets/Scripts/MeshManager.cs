@@ -18,8 +18,6 @@ public class MeshManager : MonoBehaviour {
 
     void Start() { }
 
-    private void Update() { }
-
     public void MeshSlice(Transform meshObject, Vector3 pos, Vector3 tangent, Vector3 depth) {
         var meshFilter = meshObject.GetComponent<MeshFilter>();
         if (meshFilter == null || meshFilter.mesh == null) {
