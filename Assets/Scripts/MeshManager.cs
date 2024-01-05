@@ -5,6 +5,9 @@ using System.Linq;
 using DG.Tweening;
 
 using Unity.Mathematics;
+using Unity.VisualScripting;
+
+using UnityEditor;
 
 using UnityEngine;
 
@@ -32,10 +35,18 @@ public class MeshManager : MonoBehaviour {
         if (bigMesh.vertexCount < 3 || smallMesh.vertexCount < 3) {
             return;
         }
+        MeshUtility.Optimize(bigMesh);
+        MeshUtility.Optimize(smallMesh);
 
         meshFilter.mesh = bigMesh;
+        if (!meshObject.TryGetComponent(out Rigidbody body)) {
+            meshObject.AddComponent<Rigidbody>();
+        }
+        meshObject.GetComponent<MeshCollider>().sharedMesh = bigMesh;
+
         var newInstance = GameObject.Instantiate(meshObject.gameObject, meshObject.parent, true);
         newInstance.GetComponent<MeshFilter>().mesh = smallMesh;
+        newInstance.GetComponent<MeshCollider>().sharedMesh = smallMesh;
 
         meshObject.DOMove(meshObject.position + Vector3.right, 0.5f);
         newInstance.transform.DOMove(newInstance.transform.position + Vector3.left, 0.5f);
@@ -163,7 +174,7 @@ public class MeshManager : MonoBehaviour {
         var line = end - start;
         var a = math.dot(pos - start, normal);
         var b = math.dot(line, normal);
-        if (math.abs(a / b) > math.length(line)) {
+        if ((a / b) < 0 || (a / b) > math.length(line)) {
             return false;
         }
 
@@ -235,18 +246,20 @@ public class MeshManager : MonoBehaviour {
         var boundsA = GetMeshBounds(verticesA);
         Debug.Log($"bound A center : {boundsA.center}");
         var boundsB = GetMeshBounds(verticesB);
-        while (queue.Count != 0) {
+        while (queue.Count != 0 && slicePoints.Count >= 3) {
             var current = queue.Dequeue();
             if (!slicePoints.ContainsKey(current)) {
                 continue;
             }
 
             var neighbor = slicePoints[current];
-            if (neighbor.Count != 2) {
-                Debug.LogError($"neighbor error,number is {neighbor.Count}");
+            if (neighbor.Count == 1) {
+                Debug.LogError($"edge point, neighbor number is {neighbor.Count}");
                 slicePoints.Remove(current);
                 queue.Enqueue(neighbor[0]);
                 continue;
+            }else if (neighbor.Count > 2) {
+                Debug.LogError($"common point, neighbor number is {neighbor.Count}");
             }
 
             var pointA = neighbor[0];
@@ -277,7 +290,6 @@ public class MeshManager : MonoBehaviour {
 
             // 更新顶点信息
             slicePoints.Remove(current);
-            int replace = 0;
             if (slicePoints.TryGetValue(pointA, out var neighborsA)) {
                 neighborsA.Remove(current);
                 neighborsA.Add(pointB);
@@ -286,10 +298,6 @@ public class MeshManager : MonoBehaviour {
             if (slicePoints.TryGetValue(pointB, out var neighborsB)) {
                 neighborsB.Remove(current);
                 neighborsB.Add(pointA);
-            }
-
-            if (slicePoints.Count < 3) {
-                break;
             }
         }
     }
