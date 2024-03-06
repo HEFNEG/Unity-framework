@@ -5,3 +5,6 @@ Logs
 obj
 Temp
 UserSettings
+.vs
+*.sln
+.vsconfig
