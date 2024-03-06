@@ -1,0 +1,9 @@
+{
+    "target": [
+        ".prefab",
+        ".png"
+    ],
+    "deps":[
+
+    ]
+}
