@@ -1,0 +1,3 @@
+[[ui]]
+name = "ui.test"
+path = "arts/prefab.bundle/ui/uitest.prefab"

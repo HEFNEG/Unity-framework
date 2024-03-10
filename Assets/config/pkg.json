@@ -1,0 +1,12 @@
+{
+  "type": "file",
+  "target": [
+    ".inputactions",
+    ".toml",
+    ".txt",
+    ".dll"
+  ],
+  "deps": [
+
+  ]
+}
