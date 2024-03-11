@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Game.Basic;
 using UnityEngine;
 
 public class ActorController : MonoBehaviour {

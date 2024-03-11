@@ -7,4 +7,5 @@ public static class Config {
     public static readonly int bundleLifeTime = 10;
 
     public static readonly string pkgFile = "pkg.json";
+    public static readonly string bundleExtend = ".bundle";
 }

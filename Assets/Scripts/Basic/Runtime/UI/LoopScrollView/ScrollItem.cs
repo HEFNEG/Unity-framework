@@ -1,8 +1,8 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Cooper.UI {
+namespace Game.Basic {
     public class ScrollItem : UIElement {
         public virtual Vector2 SizeDelta => RectTransform.sizeDelta;
 

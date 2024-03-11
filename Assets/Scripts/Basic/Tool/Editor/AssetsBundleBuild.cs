@@ -31,7 +31,7 @@ public static class AssetsBundleBuild {
                 var currentPath = iterDirectory.Dequeue();
                 var pkg = Path.Combine(currentPath, Config.pkgFile).Replace('\\', '/');
                 if(File.Exists(pkg)) {
-                    pkgs.Add(currentPath, pkg);
+                    pkgs.Add(currentPath.Replace('\\','/'), pkg);
                 }
                 foreach(var str in Directory.GetDirectories(currentPath)) {
                     iterDirectory.Enqueue(str);
@@ -62,9 +62,13 @@ public static class AssetsBundleBuild {
         Debug.Log(pkg);
 
         List<string> bundleFiles = new List<string>();
+        List<string> addressName = new List<string>();
         Queue<string> directorys = new Queue<string>();
         directorys.Enqueue(path);
-        if(buildType == buildTypes[0]) bundleFiles.Add(pkg);
+        if(buildType == buildTypes[0]) {
+            bundleFiles.Add(pkg);
+            addressName.Add(pkg.Replace(path + "/", ""));
+        }
 
         while(directorys.Count > 0) {
             var currentPath = directorys.Dequeue();
@@ -73,6 +77,7 @@ public static class AssetsBundleBuild {
                 var files = Directory.GetFiles(currentPath, "*" + buildTarget[i]);
                 for(int j = 0; j < files.Length; j++) {
                     bundleFiles.Add(files[j].Replace('\\', '/'));
+                    addressName.Add(bundleFiles[^1].Replace(path + "/", ""));
                 }
             }
 
@@ -83,11 +88,13 @@ public static class AssetsBundleBuild {
                 }
             }
         }
+
         if(buildType == buildTypes[0]) {
             // build bundle
             AssetBundleBuild bundleBuild = new AssetBundleBuild();
             bundleBuild.assetBundleName = path.Substring(path.IndexOf('/') + 1);
             bundleBuild.assetBundleVariant = "bundle";
+            bundleBuild.addressableNames = addressName.ToArray();
             bundleBuild.assetNames = bundleFiles.ToArray();
             bundleBuilds.Add(bundleBuild);
         }else if(buildType == buildTypes[1]) {

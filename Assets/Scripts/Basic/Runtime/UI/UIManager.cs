@@ -1,71 +1,121 @@
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Tomlet;
 using Tomlet.Models;
 using UnityEngine;
 
-public class UIManager : MonoBehaviour {
-    private List<UIElement> uiPanel;
-    private Dictionary<string, string> uiAssetPaths;
+namespace Game.Basic {
 
-    private void Awake() {
-        uiPanel = new List<UIElement>();
-        DontDestroyOnLoad(this);
-    }
+    public class UIManager : MonoBehaviour {
+        private List<UIPanel> uiPanels;
+        private List<UIElementHandle> uihandles;
+        private List<UIPanel> popPanels;
+        private Dictionary<string, string> uiAssetPaths;
 
-    private void OnDestroy() {
-        uiPanel.Clear();
-    }
-
-    public void Initialize() {
-        uiAssetPaths = new Dictionary<string, string>(64);
-        string line = File.ReadAllText(Config.assetPath + "config/ui.toml");
-        var parse = new TomlParser();
-        var tomlDocument = parse.Parse(line);
-        var registerNames = tomlDocument.GetArray("ui");
-        for(int i = 0; i < registerNames.Count; i++) {
-            var ui = registerNames[0] as TomlTable;
-            uiAssetPaths.Add(ui.GetString("key"), ui.GetString("value"));
+        private void Awake() {
+            uiPanels = new List<UIPanel>(16);
+            uihandles = new List<UIElementHandle>(8);
+            popPanels = new List<UIPanel>(8);
+            DontDestroyOnLoad(this);
         }
-    }
 
-    public void Tick() {
-        for(int i = 0; i < uiPanel.Count; i++) {
-            uiPanel[i].Tick();
+        private void OnDestroy() {
+            uiPanels.Clear();
+            uihandles.Clear();
+            popPanels.Clear();
         }
-    }
 
-    public UIElement Load(string path) {
-        
-        return null;
-    }
+        public void Initialize() {
+            uiAssetPaths = new Dictionary<string, string>(64);
+            string line = File.ReadAllText(Config.assetPath + "config/ui.toml");
+            var parse = new TomlParser();
+            var tomlDocument = parse.Parse(line);
+            var registerNames = tomlDocument.GetArray("ui");
+            for(int i = 0; i < registerNames.Count; i++) {
+                var ui = registerNames[0] as TomlTable;
+                uiAssetPaths.Add(ui.GetString("name"), ui.GetString("path"));
+            }
 
-    public void Open(string name) {
+            AppBootstrap.ui.Open("ui/test");
+        }
 
-    }
+        public void Tick() {
+            for(int i = 0; i < uiPanels.Count; i++) {
+                uiPanels[i].Tick();
+            }
 
-    public void Close(string name) {
+            for(int i = 0; i < uihandles.Count; i++) {
+                var handle = uihandles[i];
+                if(handle.assetHandle.isSuccessful) {
+                    var panel = Instantiate(handle.assetHandle.GetAsset<GameObject>()).GetComponent<UIPanel>();
+                    panel.name = handle.name;
+                    panel.transform.SetParent(this.transform);
+                    uiPanels.Add(panel);
+                    if(panel.isPop) {
+                        popPanels.Add(panel);
+                    }
 
-    }
-
-
-    public T Qurey<T>(string name = "") where T : UIElement {
-        for(int i = 0; i < uiPanel.Count; i++) {
-            var child = uiPanel[i];
-            if(string.IsNullOrEmpty(name) && child.GetType() == typeof(T)) {
-                return (T)child;
-            } else if(name == child.name && child.GetType() == typeof(T)) {
-                return (T)child;
+                    uihandles.Remove(handle);
+                }
             }
         }
 
-        for(int i = 0; i < uiPanel.Count; i++) {
-            return uiPanel[i].Qurey<T>(name);
+        public UIElement Load(string path) {
+
+            return null;
         }
 
-        return null;
+        public void Open(string name) {
+            for(int i = 0; i < uiPanels.Count; i++) {
+                var panel = uiPanels[i];
+                if(panel.name == name) {
+                    panel.gameObject.SetActiveEx(true);
+                    if(panel.isPop) {
+                        popPanels.Add(panel);
+                    }
+                    return;
+                }
+            }
+            if(uiAssetPaths.TryGetValue(name, out var path)) {
+                uihandles.Add(new UIElementHandle {
+                    name = name,
+                    assetHandle = AppBootstrap.asset.LoadAsync(path),
+
+                });
+            }
+        }
+
+        public void Close(string name) {
+            for(int i = 0; i < uiPanels.Count; i++) {
+                var panel = uiPanels[i];
+                if(panel.name == name) {
+                    panel.gameObject.SetActiveEx(false);
+                    popPanels.Remove(panel);
+                    return;
+                }
+            }
+        }
+
+        public T Qurey<T>(string name = "") where T : UIElement {
+            for(int i = 0; i < uiPanels.Count; i++) {
+                var child = uiPanels[i];
+                if(string.IsNullOrEmpty(name) && child.GetType() == typeof(T)) {
+                    return child as T;
+                } else if(name == child.name && child.GetType() == typeof(T)) {
+                    return child as T;
+                }
+            }
+
+            for(int i = 0; i < uiPanels.Count; i++) {
+                return uiPanels[i].Qurey<T>(name);
+            }
+
+            return null;
+        }
+    }
+
+    public struct UIElementHandle {
+        public string name;
+        public AssetHandle assetHandle;
     }
 }

@@ -4,9 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
-namespace Cooper.UI {
-
-
+namespace Game.Basic {
     [RequireComponent(typeof(ScrollRect))]
     public class LoopScrollView : UIElement {
         private RectTransform Content => scrollView.content;

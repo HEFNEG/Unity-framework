@@ -54,9 +54,9 @@ public class UIElement : MonoBehaviour {
         for(int i = 0; i < children.Count; i++) {
             var child = children[i];
             if(string.IsNullOrEmpty(name) && child.GetType() == typeof(T)) {
-                return (T)child;
+                return child as T;
             } else if(name == child.name && child.GetType() == typeof(T)) {
-                return (T)child;
+                return child as T;
             }
         }
 

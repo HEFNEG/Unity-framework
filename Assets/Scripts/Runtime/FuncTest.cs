@@ -1,3 +1,4 @@
+using Game.Basic;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ public class FuncTest : MonoBehaviour {
 
         handle = AppBootstrap.asset.LoadAsync("arts/prefab.bundle/cube.prefab");
         entity = GetEntity();
+       
     }
 
     // Update is called once per frame
@@ -50,7 +52,7 @@ public class FuncTest : MonoBehaviour {
             var gcHandle = GCHandle.Alloc(entity);
             var address = GCHandle.ToIntPtr(gcHandle).ToPointer();
             gcHandle = GCHandle.FromIntPtr(new IntPtr(address));
-            Debug.Log(((Entity)gcHandle.Target).id);
+            // Debug.Log(((Entity)gcHandle.Target).id);
 
             ref Entity ptr = ref UnsafeUtility.AsRef<Entity>(&entity);
             list.Add(GCHandle.ToIntPtr(gcHandle));

@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
-namespace Cooper.UI {
+namespace Game.Basic {
     public class NumberItem : ScrollItem {
         public override void Show<T>(T data) {
             var textField = GetComponentInChildren<TMP_Text>();
