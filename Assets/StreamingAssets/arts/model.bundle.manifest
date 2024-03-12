@@ -1,0 +1,27 @@
+ManifestFileVersion: 0
+CRC: 63237785
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: d0ddda848c845def8fa48ee707d7dc3b
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: e7537dc45b831d69d6cd24f3ef0de0b6
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: d0ddda848c845def8fa48ee707d7dc3b
+HashAppended: 0
+ClassTypes:
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 49
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Arts/Model/pkg.json
+- Assets/Arts/Model/Sphere.mesh
+- Assets/Arts/Model/cylinder.mesh
+- Assets/Arts/Model/plane1x1.mesh
+- Assets/Arts/Model/cube.mesh
+- Assets/Arts/Model/plane2x2.mesh
+Dependencies: []

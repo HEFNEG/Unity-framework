@@ -1,0 +1,11 @@
+ManifestFileVersion: 0
+CRC: 643637288
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: arts/model.bundle
+      Dependencies: {}
+    Info_1:
+      Name: arts/prefab.bundle
+      Dependencies:
+        Dependency_0: arts/model.bundle

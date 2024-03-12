@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
-namespace Game.Basic {
+namespace Game.Basic.UI {
     [RequireComponent(typeof(ScrollRect))]
     public class LoopScrollView : UIElement {
         private RectTransform Content => scrollView.content;

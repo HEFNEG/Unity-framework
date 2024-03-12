@@ -4,18 +4,20 @@ using Tomlet;
 using Tomlet.Models;
 using UnityEngine;
 
-namespace Game.Basic {
+namespace Game.Basic.UI {
 
     public class UIManager : MonoBehaviour {
         private List<UIPanel> uiPanels;
         private List<UIElementHandle> uihandles;
         private List<UIPanel> popPanels;
+        private List<UIEvent> uiEvents;
         private Dictionary<string, string> uiAssetPaths;
 
         private void Awake() {
             uiPanels = new List<UIPanel>(16);
             uihandles = new List<UIElementHandle>(8);
             popPanels = new List<UIPanel>(8);
+            uiEvents = new List<UIEvent>(8);
             DontDestroyOnLoad(this);
         }
 
@@ -23,6 +25,7 @@ namespace Game.Basic {
             uiPanels.Clear();
             uihandles.Clear();
             popPanels.Clear();
+            uiEvents.Clear();
         }
 
         public void Initialize() {
@@ -33,10 +36,14 @@ namespace Game.Basic {
             var registerNames = tomlDocument.GetArray("ui");
             for(int i = 0; i < registerNames.Count; i++) {
                 var ui = registerNames[0] as TomlTable;
-                uiAssetPaths.Add(ui.GetString("name"), ui.GetString("path"));
+                RegisterUI(ui.GetString("name"), ui.GetString("path"));
             }
 
             AppBootstrap.ui.Open("ui/test");
+        }
+
+        public void RegisterUI(string name, string path) {
+            uiAssetPaths.Add(name, path);
         }
 
         public void Tick() {
@@ -44,25 +51,18 @@ namespace Game.Basic {
                 uiPanels[i].Tick();
             }
 
-            for(int i = 0; i < uihandles.Count; i++) {
-                var handle = uihandles[i];
-                if(handle.assetHandle.isSuccessful) {
-                    var panel = Instantiate(handle.assetHandle.GetAsset<GameObject>()).GetComponent<UIPanel>();
-                    panel.name = handle.name;
-                    panel.transform.SetParent(this.transform);
-                    uiPanels.Add(panel);
-                    if(panel.isPop) {
-                        popPanels.Add(panel);
-                    }
-
-                    uihandles.Remove(handle);
-                }
-            }
+            TickHandle();
+            TickEvent();
         }
 
-        public UIElement Load(string path) {
+        public UIElementHandle Load(string name) {
+            if(uiAssetPaths.TryGetValue(name ,out var path)) {
+                return new UIElementHandle {
+                    assetHandle = AppBootstrap.asset.LoadAsync(path),
+                };
+            }
 
-            return null;
+            return default;
         }
 
         public void Open(string name) {
@@ -111,6 +111,39 @@ namespace Game.Basic {
             }
 
             return null;
+        }
+
+        public void Dispatch(UIEvent uiEvent) {
+            uiEvents.Add(uiEvent);
+        }
+
+        private void TickHandle() {
+            for(int i = 0; i < uihandles.Count; i++) {
+                var handle = uihandles[i];
+                if(handle.assetHandle.isSuccessful) {
+                    var panel = Instantiate(handle.assetHandle.GetAsset<GameObject>()).GetComponent<UIPanel>();
+                    panel.name = handle.name;
+                    panel.transform.SetParent(this.transform);
+                    uiPanels.Add(panel);
+                    if(panel.isPop) {
+                        popPanels.Add(panel);
+                    }
+
+                    uihandles.Remove(handle);
+                }
+            }
+        }
+
+        private void TickEvent() {
+            for(int i = 0; i < uiEvents.Count; i++) {
+                var sender = uiEvents[i].sender;
+                var target = sender.parent;
+                while(target != null) {
+                    target.InvokeCallBack(uiEvents[i]);
+                    target = target.parent;
+                }
+            }
+            uiEvents.Clear();
         }
     }
 

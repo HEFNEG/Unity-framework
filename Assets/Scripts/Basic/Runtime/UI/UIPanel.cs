@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game.Basic {
+namespace Game.Basic.UI {
     [RequireComponent(typeof(Canvas))]
     public class UIPanel : UIElement {
         private Canvas canvas;
