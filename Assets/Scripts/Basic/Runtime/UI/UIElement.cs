@@ -6,11 +6,10 @@ namespace Game.Basic.UI {
     public class UIElement : MonoBehaviour {
         public RectTransform RectTransform => transform as RectTransform;
         public UIElement parent { get; private set; }
-        private List<UIElement> children;
+        private List<UIElement> children = new List<UIElement>();
         private event Action<UIEvent> eventCallBack;
 
         private void Awake() {
-            children = new List<UIElement>();
             OnTransformParentChanged();
             OnInitialize();
         }
@@ -51,7 +50,9 @@ namespace Game.Basic.UI {
 
         private void TickChild() {
             for(int i = 0; i < children.Count; i++) {
-                children[i].Tick();
+                if(children[i].isActiveAndEnabled) {
+                    children[i].Tick();
+                }
             }
         }
         public T Qurey<T>(string name = "") where T : UIElement {

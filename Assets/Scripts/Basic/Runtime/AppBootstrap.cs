@@ -1,6 +1,5 @@
 ﻿using Game.Basic.UI;
 using System.IO;
-
 using Unity.Entities;
 
 using UnityEngine;
@@ -14,6 +13,8 @@ namespace Game.Basic {
 
         public static UIManager ui { get; private set; }
 
+        public static Console.Console console { get; private set; }
+
         public bool Initialize(string defaultWorldName) {
             string inputJson = string.Empty;
 #if UNITY_EDITOR
@@ -23,6 +24,10 @@ namespace Game.Basic {
             input.Enable();
 
             asset = new AssetsLoad();
+
+            var consolePanel = GameObject.Instantiate(Resources.Load<GameObject>("Console/Console"));
+            console = consolePanel.GetComponent<Console.Console>();
+            consolePanel.SetActiveEx(false);
 
             var uiObject = new GameObject("UIManager");
             ui = uiObject.AddComponent<UIManager>();
@@ -38,6 +43,7 @@ namespace Game.Basic {
             ScriptBehaviourUpdateOrder.AppendWorldToCurrentPlayerLoop(world);
             // 初始化另一个 world
             // DefaultWorldInitialization.Initialize("game world");
+
             return true;
         }
     }

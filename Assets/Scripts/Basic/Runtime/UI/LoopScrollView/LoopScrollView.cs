@@ -1,4 +1,4 @@
-using System.Collections;
+Ôªøusing System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -37,18 +37,19 @@ namespace Game.Basic.UI {
         private List<ScrollItem> tempDataArray;
         private List<ScrollItem> itemList;
 
-        private void Awake() {
+        public override void OnInitialize() {
+            base.OnInitialize();
             itemList = new List<ScrollItem>();
             scrollView = GetComponent<ScrollRect>();
             tempDataArray = new List<ScrollItem>();
+            ElementMatch();
         }
 
-        private void OnEnable() {
+        public override void OnShow() {
+            base.OnShow();
             minOffset = (Vector2.zero - RectTransform.pivot) * RectTransform.sizeDelta;
             maxOffset = (Vector2.one - RectTransform.pivot) * RectTransform.sizeDelta;
-        }
 
-        private void Start() {
             scrollView.horizontal = alignment == Align.Horizontal;
             scrollView.vertical = alignment == Align.Vertical;
 
@@ -56,14 +57,10 @@ namespace Game.Basic.UI {
             Content.anchorMax = new Vector2(0f, 1f);
             Content.pivot = new Vector2(0f, 1f);
 
-            var tempData = new List<int>(100);
-            for(int i = 0; i < 100; i++) {
-                tempData.Add(i);
-            }
-            SetData(tempData);
         }
 
-        private void Update() {
+
+        public void Update() {
             if(preAnchorPostion != Content.anchoredPosition) {
                 var deltaPos = Content.anchoredPosition - preAnchorPostion;
                 preAnchorPostion = Content.anchoredPosition;
@@ -72,7 +69,7 @@ namespace Game.Basic.UI {
                     case Align.Vertical:
                         if(deltaPos.y > 0) {
                             TryMoveNext();
-                        }else if(deltaPos.y < 0) {
+                        } else if(deltaPos.y < 0) {
                             TryMoveLast();
                         }
                         break;
@@ -90,7 +87,15 @@ namespace Game.Basic.UI {
         public void SetData<T>(List<T> list) {
             dataArray = list;
 
-            ReArrange();
+            Arrange();
+        }
+
+        public void ToLast() {
+            if(alignment == Align.Vertical) {
+                Content.anchoredPosition = new Vector2(Content.sizeDelta.x, Mathf.Max(0f, (Content.sizeDelta - RectTransform.sizeDelta).y));
+            } else {
+                Content.anchoredPosition = new Vector2(Mathf.Max(0f, (Content.sizeDelta - RectTransform.sizeDelta).x), Content.sizeDelta.y);
+            }
         }
 
         private void ElementMatch() {
@@ -111,7 +116,7 @@ namespace Game.Basic.UI {
         protected void ReArrange() {
             Content.anchoredPosition = Vector2.zero;
             if(dataArray == null) {
-                // …˙≥…¡Ÿ ±≤‚ ‘ ˝æ›
+                // ÁîüÊàê‰∏¥Êó∂ÊµãËØïÊï∞ÊçÆ
                 dataArray = new List<int>();
                 for(int i = 0; i < 100; i++) {
                     dataArray.Add(i);
@@ -119,14 +124,15 @@ namespace Game.Basic.UI {
             }
 
             ElementMatch();
-            // º∆À„ Content ◊‹≥§∂»
-            CalculateContentSize();
+            // ËÆ°ÁÆó Content ÊÄªÈïøÂ∫¶
             preCursor = lastCursor = 0;
             Arrange();
         }
 
         protected void Arrange() {
+            preCursor = Mathf.Min(preCursor, dataArray.Count);
             lastCursor = preCursor;
+            CalculateContentSize();
             var offset = GetItemOffset(preCursor);
 
             switch(alignment) {
@@ -264,7 +270,9 @@ namespace Game.Basic.UI {
         }
 
         protected virtual Vector2 GetItemOffset(int index) {
-            return index * itemList[0].SizeDelta;
+            Vector2 offset = index * (itemList[0].SizeDelta + Space);
+            offset.y = -offset.y;
+            return offset;
         }
 
         public enum Align {

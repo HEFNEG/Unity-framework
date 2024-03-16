@@ -121,3 +121,18 @@ public class UITest : UIPanel {
     }
 }
 ~~~
+
+## 游戏内Console
+
+按 F12 打开和关闭，移动端展暂时无法打开
+### 相关API
+> 注册新的指令，以及在 console 中打印信息
+~~~ C#
+    // register console command
+    // public void RegisterCmd(string command, Action<string[]> func)
+    AppBootstrap.console.Register(command,func);
+
+    // public void Output(string value, Message type = Message.Normal)
+    AppBootstrap.console.Output(message);
+    
+~~~
