@@ -10,6 +10,7 @@ namespace Game.Basic {
             base.OnCreate();
             AppBootstrap.asset.Initialize();
             AppBootstrap.ui.Initialize();
+            AppBootstrap.eventMgr.Initialize();
 
             ConsoleCommandBasic.RegisteredWaitHandle();
         }
@@ -17,10 +18,17 @@ namespace Game.Basic {
             AppBootstrap.asset.Tick();
             AppBootstrap.ui.Tick();
             AppBootstrap.console.Tick();
+            AppBootstrap.eventMgr.Tick();
 
             if(Input.GetKeyDown(KeyCode.F12)) {
                 AppBootstrap.console.SwitchActive();
             }
+        }
+
+        protected override void OnDestroy() {
+            base.OnDestroy();
+            AppBootstrap.asset.Destory();
+            AppBootstrap.eventMgr.Destory();
         }
     }
 }

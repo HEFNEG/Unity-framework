@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
 
 namespace Game.Basic.UI {
     [RequireComponent(typeof(ScrollRect))]
@@ -10,10 +9,10 @@ namespace Game.Basic.UI {
         private RectTransform Content => scrollView.content;
         [SerializeField] private ScrollRect scrollView;
 
-        private int preCursor;
+        [SerializeField]private int preCursor;
         public int PreCursor => preCursor;
 
-        private int lastCursor;
+        [SerializeField]private int lastCursor;
         public int LastCursor => lastCursor;
 
         private Vector2 minOffset;
@@ -115,14 +114,6 @@ namespace Game.Basic.UI {
         [ContextMenu("ReArrange")]
         protected void ReArrange() {
             Content.anchoredPosition = Vector2.zero;
-            if(dataArray == null) {
-                // 生成临时测试数据
-                dataArray = new List<int>();
-                for(int i = 0; i < 100; i++) {
-                    dataArray.Add(i);
-                }
-            }
-
             ElementMatch();
             // 计算 Content 总长度
             preCursor = lastCursor = 0;
@@ -275,7 +266,7 @@ namespace Game.Basic.UI {
             return offset;
         }
 
-        public enum Align {
+        public enum Align : byte {
             Horizontal,
             Vertical,
         }

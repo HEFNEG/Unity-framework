@@ -1,4 +1,5 @@
 using Game.Basic;
+using Game.Basic.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,7 +26,17 @@ public class FuncTest : MonoBehaviour {
 
         handle = AppBootstrap.asset.LoadAsync("arts/prefab.bundle/cube.prefab");
         entity = GetEntity();
-       
+
+        System.Type type = typeof(Entity);
+
+        var fields = type.GetFields();
+        var method = type.GetMethod("GetId");
+        type.GetField("id").SetValue(entity, 1);
+        type.GetField("id").SetValue(entity, 2);
+    }
+
+    public void AddListener<T>(Action<T> func) where T:struct {
+        var hashcode = Hash128.Compute(typeof(T).FullName);
     }
 
     // Update is called once per frame
@@ -43,6 +54,7 @@ public class FuncTest : MonoBehaviour {
                 // Debug.Log($"{entity.id} - {temp.id}");
             }
         }
+        
     }
 
     Entity GetEntity() {
@@ -63,5 +75,9 @@ public class FuncTest : MonoBehaviour {
     struct Entity {
         public int id;
         public int id2;
+
+        public void GetId(int arg) {
+            
+        }
     }
 }

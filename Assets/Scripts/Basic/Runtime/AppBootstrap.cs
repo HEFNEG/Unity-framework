@@ -15,6 +15,8 @@ namespace Game.Basic {
 
         public static Console.Console console { get; private set; }
 
+        public static EventManager eventMgr { get; private set; }
+
         public bool Initialize(string defaultWorldName) {
             string inputJson = string.Empty;
 #if UNITY_EDITOR
@@ -31,6 +33,8 @@ namespace Game.Basic {
 
             var uiObject = new GameObject("UIManager");
             ui = uiObject.AddComponent<UIManager>();
+
+            eventMgr = new EventManager();
 
             world = new World(defaultWorldName);
             Debug.Log(world.IsCreated);

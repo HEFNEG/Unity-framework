@@ -136,3 +136,32 @@ public class UITest : UIPanel {
     AppBootstrap.console.Output(message);
     
 ~~~
+
+## 事件系统 Event System
+
+### 监听
+需要继承 IEventListenHandle，并声明要监听的数据类型</p>
+~~~C#
+public class EventListener : MonoBehaviour, IEventListenHandle {
+    // Start is called before the first frame update
+    void Start() {
+        // listen
+        this.AddEventListener<int>(DebugLog);
+    }
+
+
+    public void DebugLog(EventHandle handle) {
+        Debug.Log($"event number : {handle.GetEvent<int>()}");
+    }
+}
+~~~
+
+### 发送事件
+直接进行广播即可
+~~~C#
+    // public void Broadcast<T>(T message)
+    AppBootstrap.eventMgr.Broadcast(value);
+
+    // public void Notify<T>(IEventListenHandle listener, T message)
+    AppBootstrap.eventMgr.Notify(listener,value);
+~~~
