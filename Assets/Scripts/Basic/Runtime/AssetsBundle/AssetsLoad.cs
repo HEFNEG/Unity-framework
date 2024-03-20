@@ -6,11 +6,23 @@ using Object = UnityEngine.Object;
 
 namespace Game.Basic {
     public class AssetsLoad {
+        public static AssetsLoad Instance {
+            get {
+                if(m_asset == null) {
+                    m_asset = new AssetsLoad();
+                }
+                return m_asset;
+            }
+        }
+
+        private static AssetsLoad m_asset;
         private Dictionary<string, AssetsBundleState> loadedBundles;
         private Dictionary<string, AssetBundleCreateRequest> loadingBundles;
         private List<AssetHandle> assetHandles;
         private List<string> unLoadBundle;
         private uint nextId;
+
+        private AssetsLoad() { }
 
         public void Initialize() {
             loadedBundles = new Dictionary<string, AssetsBundleState>(8);

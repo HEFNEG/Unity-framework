@@ -4,11 +4,13 @@ using Unity.Entities;
 
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Windows;
+
 namespace Game.Basic {
     public class AppBootstrap : ICustomBootstrap {
 
         public static World world { get; private set; }
-        public static InputActionAsset input { get; private set; }
+        public static Game.Basic.InputManager inputMgr { get; private set; }
         public static AssetsLoad asset { get; private set; }
 
         public static UIManager ui { get; private set; }
@@ -19,13 +21,11 @@ namespace Game.Basic {
 
         public bool Initialize(string defaultWorldName) {
             string inputJson = string.Empty;
-#if UNITY_EDITOR
-            inputJson = File.ReadAllText(Application.dataPath + "/config/input.inputactions");
-#endif
-            input = InputActionAsset.FromJson(inputJson);
-            input.Enable();
 
-            asset = new AssetsLoad();
+            inputMgr = new InputManager();
+            inputMgr.Initialize(System.IO.File.ReadAllText(Config.assetPath + "config/input.inputactions"));
+
+            asset = AssetsLoad.Instance;
 
             var consolePanel = GameObject.Instantiate(Resources.Load<GameObject>("Console/Console"));
             console = consolePanel.GetComponent<Console.Console>();

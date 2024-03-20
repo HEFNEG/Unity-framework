@@ -1,6 +1,7 @@
 using DG.Tweening;
 using Game.Basic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ActorController : MonoBehaviour {
     [SerializeField] private Transform weaponSlot;
@@ -45,16 +46,18 @@ public class ActorController : MonoBehaviour {
     }
 
     private void OnInput() {
-        /*moveInput = Vector2.zero;
+        moveInput = Vector2.zero;
         moveInput.y += Keyboard.current.wKey.isPressed ? 1f : 0f;
         moveInput.y -= Keyboard.current.sKey.isPressed ? 1f : 0f;
         moveInput.x += Keyboard.current.dKey.isPressed ? 1f : 0f;
         moveInput.x -= Keyboard.current.aKey.isPressed ? 1f : 0f;
 
-        attack = Mouse.current.leftButton.isPressed && Mouse.current.rightButton.isPressed;*/
-        lookInput = AppBootstrap.input.FindAction("look", true).ReadValue<Vector2>();
+        attack = Mouse.current.leftButton.isPressed && Mouse.current.rightButton.isPressed;
+        lookInput = Mouse.current.delta.value;
+        /*lookInput = AppBootstrap.input.FindAction("look", true).ReadValue<Vector2>();
         moveInput = AppBootstrap.input.FindAction("move", true).ReadValue<Vector2>();
         attack = AppBootstrap.input.FindAction("attack", true).IsPressed() && AppBootstrap.input.FindAction("prepare_attack", true).IsPressed();
+        */
     }
 
     private void OnLocomotion() {

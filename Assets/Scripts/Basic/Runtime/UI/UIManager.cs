@@ -58,7 +58,7 @@ namespace Game.Basic.UI {
         public UIElementHandle Load(string name) {
             if(uiAssetPaths.TryGetValue(name ,out var path)) {
                 return new UIElementHandle {
-                    assetHandle = AppBootstrap.asset.LoadAsync(path),
+                    assetHandle = AssetsLoad.Instance.LoadAsync(path),
                 };
             }
 
@@ -79,7 +79,7 @@ namespace Game.Basic.UI {
             if(uiAssetPaths.TryGetValue(name, out var path)) {
                 uihandles.Add(new UIElementHandle {
                     name = name,
-                    assetHandle = AppBootstrap.asset.LoadAsync(path),
+                    assetHandle = AssetsLoad.Instance.LoadAsync(path),
 
                 });
             }
