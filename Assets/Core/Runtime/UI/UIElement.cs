@@ -8,6 +8,7 @@ namespace Game.Basic.UI {
         public UIElement parent { get; private set; }
         private List<UIElement> children = new List<UIElement>();
         private event Action<UIEvent> eventCallBack;
+        protected UIManager uiMananger;
 
         private void Awake() {
             OnTransformParentChanged();
@@ -31,10 +32,14 @@ namespace Game.Basic.UI {
 
         private void OnTransformParentChanged() {
             var currentParent = RectTransform.parent;
+            bool isFind = false;
             while(currentParent != null) {
-                if(currentParent.TryGetComponent<UIElement>(out var element)) {
+                if(!false && currentParent.TryGetComponent<UIElement>(out var element)) {
                     element.AddChild(this);
                     parent = element;
+                    isFind = true;
+                }else if(currentParent.TryGetComponent<UIManager>(out var manager)) {
+                    uiMananger = manager;
                     break;
                 }
                 currentParent = currentParent.parent;

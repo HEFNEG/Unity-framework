@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 namespace Game.Basic.UI {
     public class UIPointer : UIElement, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler {
         public void OnPointerDown(PointerEventData eventData) {
-            AppBootstrap.ui.Dispatch(new UIPointerEvent(
+            uiMananger.Dispatch(new UIPointerEvent(
                 this,
                 Config.UI_POINT_DOWN_EVENT,
                 eventData.position
@@ -11,7 +11,7 @@ namespace Game.Basic.UI {
         }
 
         public void OnPointerUp(PointerEventData eventData) {
-            AppBootstrap.ui.Dispatch(new UIPointerEvent(
+            uiMananger.Dispatch(new UIPointerEvent(
                 this,
                 Config.UI_POINT_UP_EVENT,
                 eventData.position
@@ -19,7 +19,7 @@ namespace Game.Basic.UI {
         }
 
         void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData) {
-            AppBootstrap.ui.Dispatch(new UIPointerEvent(
+            uiMananger.Dispatch(new UIPointerEvent(
                 this,
                 Config.UI_POINT_ENTER_EVENT,
                 eventData.position
@@ -27,7 +27,7 @@ namespace Game.Basic.UI {
         }
 
         void IPointerExitHandler.OnPointerExit(PointerEventData eventData) {
-            AppBootstrap.ui.Dispatch(new UIPointerEvent(
+            uiMananger.Dispatch(new UIPointerEvent(
                 this,
                 Config.UI_POINT_EXIT_EVENT,
                 eventData.position

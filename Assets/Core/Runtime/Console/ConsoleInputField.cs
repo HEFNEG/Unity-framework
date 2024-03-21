@@ -34,7 +34,7 @@ namespace Game.Basic.Console {
         }
 
         private void OnSumbit(string newValue) {
-            AppBootstrap.console.InvokeCmd(newValue);
+            Console.Instance.InvokeCmd(newValue);
             inputField.text = string.Empty;
         }
     }

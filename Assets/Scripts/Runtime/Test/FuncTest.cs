@@ -28,11 +28,12 @@ public class FuncTest : MonoBehaviour {
         entity = GetEntity();
 
         System.Type type = typeof(Entity);
-
         var fields = type.GetFields();
         var method = type.GetMethod("GetId");
         type.GetField("id").SetValue(entity, 1);
         type.GetField("id").SetValue(entity, 2);
+
+        AppBootstrap.ui.Open("ui/test");
     }
 
     public void AddListener<T>(Action<T> func) where T:struct {

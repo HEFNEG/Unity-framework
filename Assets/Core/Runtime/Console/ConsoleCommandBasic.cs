@@ -7,11 +7,11 @@ namespace Game.Basic.Console {
     public static class ConsoleCommandBasic{
 
         public static void RegisteredWaitHandle() {
-            AppBootstrap.console.RegisterCmd("clear", ClearConsole);
+            Console.Instance.RegisterCmd("clear", ClearConsole);
         }
 
         private static void ClearConsole(string[] args) {
-            AppBootstrap.console.ClearConsole();
+            Console.Instance.ClearConsole();
         }
     }
 }

@@ -4,7 +4,7 @@ using Game.Basic;
 public class EventListener : MonoBehaviour, IEventListenHandle {
     // Start is called before the first frame update
     void Start() {
-        this.AddEventListener<int>(DebugLog);
+        this.AddEventListener<int>(AppBootstrap.eventMgr, DebugLog);
     }
 
 

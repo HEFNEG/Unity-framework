@@ -9,7 +9,10 @@ namespace Game.Basic {
         protected override void OnCreate() {
             base.OnCreate();
             AppBootstrap.asset.Initialize();
-            AppBootstrap.ui.Initialize();
+            string line = System.IO.File.ReadAllText(Config.assetPath + "config/ui.toml");
+            AppBootstrap.ui.Initialize(line);
+            AppBootstrap.ui.Open("ui/test");
+
             AppBootstrap.eventMgr.Initialize();
 
             ConsoleCommandBasic.RegisteredWaitHandle();

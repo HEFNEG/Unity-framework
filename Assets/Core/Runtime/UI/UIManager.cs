@@ -28,18 +28,34 @@ namespace Game.Basic.UI {
             uiEvents.Clear();
         }
 
-        public void Initialize() {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="uiToml">
+        /// ui.toml
+        /// -----------------------------------------
+        /// [[ui]]
+        /// name = "ui/test"
+        /// path = "ui.bundle/uitest.prefab"
+        /// 
+        /// [[ui]]
+        /// name = "ui/test2"
+        /// path = "ui.bundle/uitest.prefab2"
+        /// 
+        /// .....
+        /// </param>
+        public void Initialize(string uiToml = "") {
             uiAssetPaths = new Dictionary<string, string>(64);
-            string line = File.ReadAllText(Config.assetPath + "config/ui.toml");
+            if(string.IsNullOrEmpty(uiToml)) {
+                return;
+            }
             var parse = new TomlParser();
-            var tomlDocument = parse.Parse(line);
+            var tomlDocument = parse.Parse(uiToml);
             var registerNames = tomlDocument.GetArray("ui");
             for(int i = 0; i < registerNames.Count; i++) {
                 var ui = registerNames[0] as TomlTable;
                 RegisterUI(ui.GetString("name"), ui.GetString("path"));
             }
-
-            AppBootstrap.ui.Open("ui/test");
         }
 
         public void RegisterUI(string name, string path) {
@@ -56,7 +72,7 @@ namespace Game.Basic.UI {
         }
 
         public UIElementHandle Load(string name) {
-            if(uiAssetPaths.TryGetValue(name ,out var path)) {
+            if(uiAssetPaths.TryGetValue(name, out var path)) {
                 return new UIElementHandle {
                     assetHandle = AssetsLoad.Instance.LoadAsync(path),
                 };

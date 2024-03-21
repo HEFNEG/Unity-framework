@@ -9,9 +9,11 @@ namespace Game.Basic.Console {
         [SerializeField] private ConsoleInputField inputField;
         private List<string> messages = new List<string>(32);
         private Dictionary<string, Action<string[]>> functions = new Dictionary<string, Action<string[]>>(16);
+        public static Console Instance { get; private set; }
 
         public override void OnInitialize() {
             base.OnInitialize();
+            Instance = this;
             DontDestroyOnLoad(this.gameObject);
         }
 
