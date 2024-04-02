@@ -2,7 +2,7 @@
 using Game.Basic.Console;
 using Unity.Entities;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using Unity.Collections;
 
 namespace Game.Basic {
     public partial class GameSystem : SystemBase {
@@ -11,7 +11,7 @@ namespace Game.Basic {
             AppBootstrap.asset.Initialize();
             string line = System.IO.File.ReadAllText(Config.assetPath + "config/ui.toml");
             AppBootstrap.ui.Initialize(line);
-            AppBootstrap.ui.Open("ui/test");
+            //AppBootstrap.ui.Open("ui/test");
 
             AppBootstrap.eventMgr.Initialize();
 
@@ -30,7 +30,7 @@ namespace Game.Basic {
 
         protected override void OnDestroy() {
             base.OnDestroy();
-            AppBootstrap.asset.Destory();
+            AppBootstrap.asset.Destory(); 
             AppBootstrap.eventMgr.Destory();
         }
     }

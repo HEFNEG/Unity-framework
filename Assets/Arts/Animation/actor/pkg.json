@@ -1,0 +1,11 @@
+{
+  "type": "bundle",
+  "target": [
+    ".anim",
+    ".avatar",
+    ".mask"
+  ],
+  "deps": [
+
+  ]
+}

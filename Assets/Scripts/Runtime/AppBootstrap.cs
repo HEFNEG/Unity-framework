@@ -1,10 +1,7 @@
 ﻿using Game.Basic.UI;
-using System.IO;
 using Unity.Entities;
 
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.Windows;
 
 namespace Game.Basic {
     public class AppBootstrap : ICustomBootstrap {
@@ -39,10 +36,13 @@ namespace Game.Basic {
             world = new World(defaultWorldName);
             Debug.Log(world.IsCreated);
             World.DefaultGameObjectInjectionWorld = world;
-            var simlution = world.GetOrCreateSystemManaged<SimulationSystemGroup>();
-            simlution.AddSystemToUpdateList(world.CreateSystemManaged<GameSystem>());
-            simlution.SortSystems();
-            DefaultWorldInitialization.AddSystemsToRootLevelSystemGroups(world, typeof(GameSystem));
+            var initialization = world.GetOrCreateSystemManaged<InitializationSystemGroup>();
+            initialization.AddSystemToUpdateList(world.CreateSystemManaged<GameSystem>());
+            initialization.SortSystems();
+
+            var simulation = world.GetOrCreateSystemManaged<SimulationSystemGroup>();
+
+            //DefaultWorldInitialization.AddSystemsToRootLevelSystemGroups(world, typeof(GameSystem));
 
             ScriptBehaviourUpdateOrder.AppendWorldToCurrentPlayerLoop(world);
             // 初始化另一个 world

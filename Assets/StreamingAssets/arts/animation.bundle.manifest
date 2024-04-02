@@ -1,0 +1,26 @@
+ManifestFileVersion: 0
+CRC: 1885425480
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 34a312b00e2bf1355ddaeee8db48f5fe
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 8846a494e30e55152b817d6c54243353
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 34a312b00e2bf1355ddaeee8db48f5fe
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+- Class: 319
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Arts/Animation/mask/lower_mask.mask
+- Assets/Arts/Animation/mask/upper_mask.mask
+- Assets/Arts/Animation/pkg.json
+- Assets/Arts/Animation/mask/null_mask.mask
+- Assets/Arts/Animation/mask/full_mask.mask
+Dependencies: []

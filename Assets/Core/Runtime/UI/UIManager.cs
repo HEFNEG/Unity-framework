@@ -77,7 +77,6 @@ namespace Game.Basic.UI {
                     assetHandle = AssetsLoad.Instance.LoadAsync(path),
                 };
             }
-
             return default;
         }
 

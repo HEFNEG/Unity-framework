@@ -7,6 +7,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.greenbamboogames.playablegraphmonitor": {
+      "version": "git@github.com:SolarianZ/UnityPlayableGraphMonitorTool.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "8e2cf77a53de4ddcb75bc514600be8a9ccb55c8c"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
@@ -172,6 +179,13 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "com.unity.playablegraph-visualizer": {
+      "version": "git@github.com:Unity-Technologies/graph-visualizer.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "cfb3a9f75dd2ef7cc4253b0439806646cdd79814"
     },
     "com.unity.postprocessing": {
       "version": "3.2.2",

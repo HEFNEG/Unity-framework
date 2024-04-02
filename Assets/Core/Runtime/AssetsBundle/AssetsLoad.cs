@@ -45,7 +45,7 @@ namespace Game.Basic {
         }
 
         public T Load<T>(string path) where T : Object {
-            var pathArg = path.Split(Config.bundleExtend + "/ ");
+            var pathArg = path.Split(Config.bundleExtend + "/");
             if(pathArg.Length != 2) {
                 Debug.LogError(path + "路径不符合要求");
                 return default;

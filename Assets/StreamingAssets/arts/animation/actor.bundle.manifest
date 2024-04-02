@@ -1,0 +1,39 @@
+ManifestFileVersion: 0
+CRC: 2335263122
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 800d9ce4d99ededd0238518fd831b502
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 696d23e72316b5a3f7615ee73263dd57
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 800d9ce4d99ededd0238518fd831b502
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Arts/Animation/actor/movement/Esc_StandRoll_Front_Root.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Idle_A_TurnR_90.anim
+- Assets/Arts/Animation/actor/movement/Esc_StandRoll_Right_Root.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Boost_Back_R.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Boost_Front_R.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Boost_Back_L.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Walk_Back_R.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Idle_A_TurnL_90.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Dash_Back.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Walk.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Walk_Back_L.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Dash.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Walk_Back.anim
+- Assets/Arts/Animation/actor/movement/Esc_StandRoll_Left_Root.anim
+- Assets/Arts/Animation/actor/pkg.json
+- Assets/Arts/Animation/actor/movement/Idle_Wait_A.anim
+- Assets/Arts/Animation/actor/movement/Mvm_Boost_Front_L.anim
+- Assets/Arts/Animation/actor/movement/Esc_StandRoll_Back_Root.anim
+Dependencies: []

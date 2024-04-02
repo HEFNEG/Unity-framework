@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2535783274
+CRC: 2530763751
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 7286625bd59b96204b75f7734eb8e2f3
+    Hash: 15db41d964380a51b20fdd18ed0a86cf
   TypeTreeHash:
     serializedVersion: 2
-    Hash: d34da65440ba6bff41010490cc13e16a
+    Hash: 74629ebd8db2587c8f2fe693f1515098
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 7286625bd59b96204b75f7734eb8e2f3
+    Hash: 15db41d964380a51b20fdd18ed0a86cf
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -32,21 +32,27 @@ ClassTypes:
   Script: {instanceID: 0}
 - Class: 64
   Script: {instanceID: 0}
+- Class: 90
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
 - Class: 114
   Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 68ac2f1783258da489403055523719d8, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e22dc4fc6f984494cac8c44cdf996a72, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: 0ddcec20a02c0bb4da250fdbaf5c0221, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 68ac2f1783258da489403055523719d8, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: a4b9b80efa01daa428018737e526474d, type: 3}
-- Class: 114
-  Script: {fileID: 11500000, guid: e22dc4fc6f984494cac8c44cdf996a72, type: 3}
 - Class: 115
+  Script: {instanceID: 0}
+- Class: 137
   Script: {instanceID: 0}
 - Class: 213
   Script: {instanceID: 0}
@@ -62,9 +68,11 @@ SerializeReferenceClassIdentifiers:
 - AssemblyName: UnityEngine.UI
   ClassName: UnityEngine.UI.MaskableGraphic/CullStateChangedEvent
 Assets:
+- Assets/Arts/Prefab/actor/CLazy@Idle_Wait_A.prefab
 - Assets/Arts/Prefab/ui/UITest.prefab
 - Assets/Arts/Prefab/Cube.prefab
 - Assets/Arts/Prefab/Cylinder.prefab
 - Assets/Arts/Prefab/pkg.json
+- Assets/Arts/Prefab/actor/Character_GhillieSuit_01.prefab
 Dependencies:
 - C:/MyProcess/Project/Unity/Unity-Mesh/Assets/StreamingAssets/arts/model.bundle

@@ -7,13 +7,13 @@ using System.IO;
 public static class AssetsBundleBuild {
     private readonly static string[] buildTypes = { "bundle", "file" };
 
-    [MenuItem("Assets/Build/clear cache")]
+    [MenuItem("Assets/Develop Tools/Build/clear cache")]
     public static void ClearCache() {
         Directory.Delete(Application.dataPath + "/../Library/Bee", true);
         Directory.Delete(Application.dataPath + "/../Library/BuildPlayerData", true);
     }
 
-    [MenuItem("Assets/Build/Build", priority = 1)]
+    [MenuItem("Assets/Develop Tools/Build/Build", priority = 1)]
     public static void BuildAsset() {
         Dictionary<string, string> pkgs = new Dictionary<string, string>();
         Queue<string> iterDirectory = new Queue<string>();
