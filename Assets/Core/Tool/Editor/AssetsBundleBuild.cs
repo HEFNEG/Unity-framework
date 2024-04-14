@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using LitJson;
 using System.IO;
+using UnityEngine.Rendering.Universal;
 
 public static class AssetsBundleBuild {
     private readonly static string[] buildTypes = { "bundle", "file" };
@@ -18,6 +19,7 @@ public static class AssetsBundleBuild {
         Dictionary<string, string> pkgs = new Dictionary<string, string>();
         Queue<string> iterDirectory = new Queue<string>();
         List<AssetBundleBuild> bundleBuilds = new List<AssetBundleBuild>();
+        List<JsonData> bundlePkgs = new List<JsonData>();
 
         if(!Directory.Exists(Config.assetPath)) {
             Directory.CreateDirectory(Config.assetPath);
@@ -31,26 +33,41 @@ public static class AssetsBundleBuild {
                 var currentPath = iterDirectory.Dequeue();
                 var pkg = Path.Combine(currentPath, Config.pkgFile).Replace('\\', '/');
                 if(File.Exists(pkg)) {
-                    pkgs.Add(currentPath.Replace('\\','/'), pkg);
+                    pkgs.Add(currentPath.Replace('\\', '/'), pkg);
                 }
                 foreach(var str in Directory.GetDirectories(currentPath)) {
                     iterDirectory.Enqueue(str);
                 }
             }
             foreach(var pair in pkgs) {
-                Build(pair.Key, pair.Value, ref bundleBuilds);
+                Build(pair.Key, pair.Value, ref bundleBuilds, ref bundlePkgs);
             }
-
-            BuildPipeline.BuildAssetBundles(Config.assetPath, bundleBuilds.ToArray(), BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
-            pkgs.Clear();
-            bundleBuilds.Clear();
         }
 
+        var manifest = BuildPipeline.BuildAssetBundles(Config.assetPath, bundleBuilds.ToArray(), BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
+        for(int i = 0; i < bundleBuilds.Count; i++) {
+            var allDeps = manifest.GetAllDependencies(bundleBuilds[i].assetBundleName + Config.bundleExtend);
+            StreamWriter depFile = new StreamWriter(Config.assetPath + bundleBuilds[i].assetBundleName.ToLower() + Config.depExtend);
+            JsonData deps = bundlePkgs[i]["deps"];
+            for(int j = 0; j < allDeps.Length; j++) {
+                depFile.WriteLine(deps[j].ToString().ToLower().Replace(Config.assetPath, ""));
+            }
+            depFile.Flush();
+            depFile.Close();
+        }
+
+        pkgs.Clear();
+        bundleBuilds.Clear();
+        bundlePkgs.Clear();
+        AssetDatabase.Refresh();
+
         File.Delete(Path.Combine(Config.assetPath, "StreamingAssets").Replace('\\', '/'));
+        File.Delete(Path.Combine(Config.assetPath, "StreamingAssets" + Config.manifestExtend).Replace('\\', '/'));
+
         System.GC.Collect();
     }
 
-    public static void Build(string path, string pkg, ref List<AssetBundleBuild> bundleBuilds) {
+    public static void Build(string path, string pkg, ref List<AssetBundleBuild> bundleBuilds, ref List<JsonData> bundlePkgs) {
         if(string.IsNullOrEmpty(path) || !System.IO.Directory.Exists(path)) {
             return;
         }
@@ -65,10 +82,6 @@ public static class AssetsBundleBuild {
         List<string> addressName = new List<string>();
         Queue<string> directorys = new Queue<string>();
         directorys.Enqueue(path);
-        if(buildType == buildTypes[0]) {
-            bundleFiles.Add(pkg);
-            addressName.Add(pkg.Replace(path + "/", ""));
-        }
 
         while(directorys.Count > 0) {
             var currentPath = directorys.Dequeue();
@@ -97,7 +110,9 @@ public static class AssetsBundleBuild {
             bundleBuild.addressableNames = addressName.ToArray();
             bundleBuild.assetNames = bundleFiles.ToArray();
             bundleBuilds.Add(bundleBuild);
-        }else if(buildType == buildTypes[1]) {
+            bundlePkgs.Add(pkgJson);
+
+        } else if(buildType == buildTypes[1]) {
             for(int i = 0; i < bundleFiles.Count; i++) {
                 var file = bundleFiles[i];
                 var targetFile = Config.assetPath + file.Replace("Assets/", "");
@@ -105,7 +120,7 @@ public static class AssetsBundleBuild {
                 if(!Directory.Exists(diret)) {
                     Directory.CreateDirectory(diret);
                 }
-                File.Copy(file, Config.assetPath + file.Replace("Assets/", ""),true);
+                File.Copy(file, Config.assetPath + file.Replace("Assets/", ""), true);
             }
         }
     }

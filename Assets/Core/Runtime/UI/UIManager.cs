@@ -12,6 +12,7 @@ namespace Game.Basic.UI {
         private List<UIPanel> popPanels;
         private List<UIEvent> uiEvents;
         private Dictionary<string, string> uiAssetPaths;
+        private const int priorityScale = 1000;
 
         private void Awake() {
             uiPanels = new List<UIPanel>(16);
@@ -53,7 +54,7 @@ namespace Game.Basic.UI {
             var tomlDocument = parse.Parse(uiToml);
             var registerNames = tomlDocument.GetArray("ui");
             for(int i = 0; i < registerNames.Count; i++) {
-                var ui = registerNames[0] as TomlTable;
+                var ui = registerNames[i] as TomlTable;
                 RegisterUI(ui.GetString("name"), ui.GetString("path"));
             }
         }
@@ -88,6 +89,8 @@ namespace Game.Basic.UI {
                     if(panel.isPop) {
                         popPanels.Add(panel);
                     }
+
+                    panel.SetPriority(panel.priority * priorityScale + uiPanels.Count);
                     return;
                 }
             }
@@ -111,7 +114,7 @@ namespace Game.Basic.UI {
             }
         }
 
-        public T Qurey<T>(string name = "") where T : UIElement {
+        public T Query<T>(string name = "") where T : UIElement {
             for(int i = 0; i < uiPanels.Count; i++) {
                 var child = uiPanels[i];
                 if(string.IsNullOrEmpty(name) && child.GetType() == typeof(T)) {
@@ -122,10 +125,25 @@ namespace Game.Basic.UI {
             }
 
             for(int i = 0; i < uiPanels.Count; i++) {
-                return uiPanels[i].Qurey<T>(name);
+                return uiPanels[i].Query<T>(name);
             }
 
             return null;
+        }
+
+        public void QueryAll<T>(List<T> list,string name = "") where T : UIElement {
+            for(int i = 0; i < uiPanels.Count; i++) {
+                var child = uiPanels[i];
+                if(string.IsNullOrEmpty(name) && child.GetType() == typeof(T)) {
+                    list.Add( child as T);
+                } else if(name == child.name && child.GetType() == typeof(T)) {
+                    list.Add(child as T);
+                }
+            }
+
+            for(int i = 0; i < uiPanels.Count; i++) {
+                uiPanels[i].QueryAll<T>(list,name);
+            }
         }
 
         public void Dispatch(UIEvent uiEvent) {
@@ -140,9 +158,7 @@ namespace Game.Basic.UI {
                     panel.name = handle.name;
                     panel.transform.SetParent(this.transform);
                     uiPanels.Add(panel);
-                    if(panel.isPop) {
-                        popPanels.Add(panel);
-                    }
+                    panel.SetPriority(panel.priority * priorityScale + uiPanels.Count);
 
                     uihandles.Remove(handle);
                 }

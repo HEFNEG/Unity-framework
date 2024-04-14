@@ -1,3 +1,4 @@
+using DG.Tweening;
 using Game.Basic;
 using LitJson;
 using System.Collections;
@@ -50,6 +51,12 @@ namespace Game.Basic {
         public void Play(string clipName) {
             for(int i = 0; i < animLayers.Count; i++) {
                 if(animLayers[i].Play(clipName)) { return; }
+            }
+        }
+
+        public void CrossFade(string clipName, float crossTime = 0.3f) {
+            for(int i = 0; i < animLayers.Count; i++) {
+                if(animLayers[i].CrossFade(clipName, crossTime)) { return; }
             }
         }
 
@@ -131,14 +138,20 @@ namespace Game.Basic {
         public Dictionary<string, AnimationClipPlayable> playableClips;
         public List<AnimationBlend2DPlayable> blendClips;
         public readonly static Vector2 normalVector = Vector2.up;
+        private int currentIndex;
+        private int crossIndex;
+        private float currentWeight;
+        private Tweener tweener;
 
         public bool Play(string clipName) {
             if(layerMixer.GetInputCount() == 0) {
-                layerMixer.SetInputCount(1);
+                layerMixer.SetInputCount(2);
             }
 
             if(playableClips.TryGetValue(clipName, out var clipPlayable)) {
-                layerMixer.DisconnectInput(0);
+                for(int j = 0; j < layerMixer.GetInputCount(); j++) {
+                    layerMixer.DisconnectInput(j);
+                }
                 layerMixer.ConnectInput(0, clipPlayable, 0, 1);
                 current = clipName;
                 return true;
@@ -146,10 +159,62 @@ namespace Game.Basic {
 
             for(int i = 0; i < blendClips.Count; i++) {
                 if(blendClips[i].name == clipName) {
-                    layerMixer.DisconnectInput(0);
+                    for(int j = 0; j < layerMixer.GetInputCount(); j++) {
+                        layerMixer.DisconnectInput(j);
+                    }
                     layerMixer.ConnectInput(0, blendClips[i].mixer, 0, 1);
                     current = clipName;
                     return true;
+                }
+            }
+            return false;
+        }
+
+        public bool CrossFade(string clipName, float crossTime) {
+            if(layerMixer.GetInputCount() == 0) {
+                layerMixer.SetInputCount(2);
+            }
+
+            if(clipName  == current) {
+                return true;
+            }
+            crossIndex = (currentIndex + 1) % layerMixer.GetInputCount();
+            if(playableClips.TryGetValue(clipName, out var clipPlayable)) {
+                layerMixer.DisconnectInput(crossIndex);
+                layerMixer.ConnectInput(crossIndex, clipPlayable, 0, 1);
+                currentIndex ^= crossIndex;
+                crossIndex ^= currentIndex;
+                currentIndex ^= crossIndex;
+                currentWeight = 0;
+                if(tweener != null && tweener.IsActive()) {
+                    tweener.Kill();
+                }
+                tweener = DOTween.To(() => currentWeight, (x) => currentWeight = x, 1, crossTime).OnUpdate(() => {
+                    layerMixer.SetInputWeight(currentIndex, currentWeight);
+                    layerMixer.SetInputWeight(crossIndex, 1 - currentWeight);
+                });
+                current = clipName;
+                return true;
+            }
+
+            for(int i = 0; i < blendClips.Count; i++) {
+                if(blendClips[i].name == clipName) {
+                    layerMixer.DisconnectInput(crossIndex);
+                    layerMixer.ConnectInput(crossIndex, blendClips[i].mixer, 0, 1);
+                    currentIndex ^= crossIndex;
+                    crossIndex ^= currentIndex;
+                    currentIndex ^= crossIndex;
+                    currentWeight = 0;
+                    if(tweener != null && tweener.IsActive()) {
+                        tweener.Kill();
+                    }
+                    tweener = DOTween.To(() => currentWeight, (x) => currentWeight = x, 1, crossTime).OnUpdate(() => {
+                        layerMixer.SetInputWeight(currentIndex, currentWeight);
+                        layerMixer.SetInputWeight(crossIndex, 1 - currentWeight);
+                    });
+                    current = clipName;
+                    return true;
+
                 }
             }
             return false;
@@ -178,7 +243,7 @@ namespace Game.Basic {
                     nIndex %= length;
                     pIndex = (nIndex - 1 + length) % length;
                     float mod = 2 * math.PI;
-                    float pWeight = (tempAngle - current.clipInfos[pIndex].angle + mod)%mod;
+                    float pWeight = (tempAngle - current.clipInfos[pIndex].angle + mod) % mod;
                     float nWeight = (current.clipInfos[nIndex].angle - tempAngle + mod) % mod;
                     weights[pIndex] = pWeight == 0 ? 1 : 1 - pWeight / (pWeight + nWeight);
                     weights[nIndex] = nWeight == 0 ? 1 : 1 - nWeight / (pWeight + nWeight);

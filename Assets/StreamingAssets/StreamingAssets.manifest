@@ -1,7 +1,0 @@
-ManifestFileVersion: 0
-CRC: 3950180802
-AssetBundleManifest:
-  AssetBundleInfos:
-    Info_0:
-      Name: arts/animation/actor.bundle
-      Dependencies: {}

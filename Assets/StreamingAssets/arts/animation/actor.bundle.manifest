@@ -1,19 +1,17 @@
 ManifestFileVersion: 0
-CRC: 2335263122
+CRC: 1515028112
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 800d9ce4d99ededd0238518fd831b502
+    Hash: 9e4695bc0ce1e53d792b823cbfe78ac8
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 696d23e72316b5a3f7615ee73263dd57
+    Hash: 5941c3541d8b403f80e37b0d697371e8
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 800d9ce4d99ededd0238518fd831b502
+    Hash: 9e4695bc0ce1e53d792b823cbfe78ac8
 HashAppended: 0
 ClassTypes:
-- Class: 49
-  Script: {instanceID: 0}
 - Class: 74
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
@@ -32,7 +30,6 @@ Assets:
 - Assets/Arts/Animation/actor/movement/Mvm_Dash.anim
 - Assets/Arts/Animation/actor/movement/Mvm_Walk_Back.anim
 - Assets/Arts/Animation/actor/movement/Esc_StandRoll_Left_Root.anim
-- Assets/Arts/Animation/actor/pkg.json
 - Assets/Arts/Animation/actor/movement/Idle_Wait_A.anim
 - Assets/Arts/Animation/actor/movement/Mvm_Boost_Front_L.anim
 - Assets/Arts/Animation/actor/movement/Esc_StandRoll_Back_Root.anim

@@ -1,24 +1,21 @@
 ManifestFileVersion: 0
-CRC: 63237785
+CRC: 346417336
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: d0ddda848c845def8fa48ee707d7dc3b
+    Hash: b33ef22e546df5a1be93d21ea624cbb0
   TypeTreeHash:
     serializedVersion: 2
-    Hash: e7537dc45b831d69d6cd24f3ef0de0b6
+    Hash: 2edfeee0fffd52782c286e532ff06aef
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: d0ddda848c845def8fa48ee707d7dc3b
+    Hash: b33ef22e546df5a1be93d21ea624cbb0
 HashAppended: 0
 ClassTypes:
 - Class: 43
   Script: {instanceID: 0}
-- Class: 49
-  Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
-- Assets/Arts/Model/pkg.json
 - Assets/Arts/Model/Sphere.mesh
 - Assets/Arts/Model/cylinder.mesh
 - Assets/Arts/Model/plane1x1.mesh

@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2530763751
+CRC: 2212993095
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 15db41d964380a51b20fdd18ed0a86cf
+    Hash: fbd21872521e1426cb6d14ad939577a7
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 74629ebd8db2587c8f2fe693f1515098
+    Hash: 3e51a3c2d8332f3cdffa48144c2801f5
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 15db41d964380a51b20fdd18ed0a86cf
+    Hash: fbd21872521e1426cb6d14ad939577a7
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -27,8 +27,6 @@ ClassTypes:
 - Class: 43
   Script: {instanceID: 0}
 - Class: 48
-  Script: {instanceID: 0}
-- Class: 49
   Script: {instanceID: 0}
 - Class: 64
   Script: {instanceID: 0}
@@ -72,7 +70,6 @@ Assets:
 - Assets/Arts/Prefab/ui/UITest.prefab
 - Assets/Arts/Prefab/Cube.prefab
 - Assets/Arts/Prefab/Cylinder.prefab
-- Assets/Arts/Prefab/pkg.json
 - Assets/Arts/Prefab/actor/Character_GhillieSuit_01.prefab
 Dependencies:
 - C:/MyProcess/Project/Unity/Unity-Mesh/Assets/StreamingAssets/arts/model.bundle

@@ -9,14 +9,22 @@ namespace Game.Basic.UI {
         private List<UIElement> children = new List<UIElement>();
         private event Action<UIEvent> eventCallBack;
         protected UIManager uiMananger;
+        private bool isValid = false;
 
         private void Awake() {
             OnTransformParentChanged();
-            OnInitialize();
         }
 
         private void OnEnable() {
+            if(isValid) {
+                OnShow();
+            }
+        }
+
+        private void Start() {
+            OnInitialize();
             OnShow();
+            isValid = true;
         }
 
         private void OnDisable() {
@@ -34,11 +42,11 @@ namespace Game.Basic.UI {
             var currentParent = RectTransform.parent;
             bool isFind = false;
             while(currentParent != null) {
-                if(!false && currentParent.TryGetComponent<UIElement>(out var element)) {
+                if(!isFind && currentParent.TryGetComponent<UIElement>(out var element)) {
                     element.AddChild(this);
                     parent = element;
                     isFind = true;
-                }else if(currentParent.TryGetComponent<UIManager>(out var manager)) {
+                } else if(currentParent.TryGetComponent<UIManager>(out var manager)) {
                     uiMananger = manager;
                     break;
                 }
@@ -60,7 +68,8 @@ namespace Game.Basic.UI {
                 }
             }
         }
-        public T Qurey<T>(string name = "") where T : UIElement {
+
+        public T Query<T>(string name = "") where T : UIElement {
             for(int i = 0; i < children.Count; i++) {
                 var child = children[i];
                 if(string.IsNullOrEmpty(name) && child.GetType() == typeof(T)) {
@@ -71,10 +80,25 @@ namespace Game.Basic.UI {
             }
 
             for(int i = 0; i < children.Count; i++) {
-                return children[i].Qurey<T>(name);
+                return children[i].Query<T>(name);
             }
 
             return null;
+        }
+
+        public void QueryAll<T>(List<T> list, string name = "") where T : UIElement {
+            for(int i = 0; i < children.Count; i++) {
+                var child = children[i];
+                if(string.IsNullOrEmpty(name) && child.GetType() == typeof(T)) {
+                    list.Add(child as T);
+                } else if(name == child.name && child.GetType() == typeof(T)) {
+                    list.Add(child as T);
+                }
+            }
+
+            for(int i = 0; i < children.Count; i++) {
+                children[i].QueryAll<T>(list, name);
+            }
         }
 
         public void AddListener(Action<UIEvent> action) {

@@ -8,6 +8,8 @@ public static class Config {
 
     public const string pkgFile = "pkg.json";
     public const string bundleExtend = ".bundle";
+    public const string depExtend = ".dep";
+    public const string manifestExtend = ".manifest";
 
     // UIEvent Name
     public const string UI_CLICK_EVENT = "Click";

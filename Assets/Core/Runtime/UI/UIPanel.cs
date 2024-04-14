@@ -8,19 +8,23 @@ namespace Game.Basic.UI {
         private Canvas canvas;
         public int priority = 0;
         public bool isPop = false;
+        public int sortingOrder {
+            get {
+                if(canvas == null) {
+                    canvas = GetComponent<Canvas>();
+                }
+                return canvas.sortingOrder;
+            }
+        }
 
         public override void OnInitialize() {
             base.OnInitialize();
             canvas = GetComponent<Canvas>();
-            canvas.sortingOrder = priority * 100;
         }
 
-        public virtual void OnOpen() {
-
-        }
-
-        public virtual void OnClose() {
-
+        public void SetPriority(int priority) {
+            canvas = GetComponent<Canvas>();
+            canvas.sortingOrder = priority;
         }
     }
 }
