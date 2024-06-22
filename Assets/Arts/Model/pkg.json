@@ -1,9 +1,0 @@
-{
-  "type": "bundle",
-  "target": [
-    ".mesh"
-  ],
-  "deps": [
-
-  ]
-}
