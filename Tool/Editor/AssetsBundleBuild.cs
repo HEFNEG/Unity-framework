@@ -3,11 +3,11 @@ using UnityEngine;
 using UnityEditor;
 using LitJson;
 using System.IO;
-using UnityEngine.Rendering.Universal;
+using Game.Basic;
 
 public static class AssetsBundleBuild {
     private readonly static string[] buildTypes = { "bundle", "file" };
-
+    
     [MenuItem("Assets/Develop Tools/Build/clear cache")]
     public static void ClearCache() {
         Directory.Delete(Application.dataPath + "/../Library/Bee", true);
@@ -26,6 +26,7 @@ public static class AssetsBundleBuild {
         }
 
         var selections = Selection.GetFiltered<Object>(SelectionMode.Assets);
+        // 遍历所有pkg文件
         foreach(var obj in selections) {
             var path = AssetDatabase.GetAssetPath(obj);
             iterDirectory.Enqueue(path);
@@ -34,6 +35,16 @@ public static class AssetsBundleBuild {
                 var pkg = Path.Combine(currentPath, Config.pkgFile).Replace('\\', '/');
                 if(File.Exists(pkg)) {
                     pkgs.Add(currentPath.Replace('\\', '/'), pkg);
+                    // 添加依赖项
+                    var pkgJson = JsonMapper.ToObject(File.ReadAllText(pkg));
+                    var buildDeps = pkgJson["deps"];
+                    for(int i = 0; buildDeps!=null && buildDeps.IsArray && i< buildDeps.Count; i++) {
+                        string depPath = "Assets/" + buildDeps[i].ToString();
+                        string pkgPath = Path.Combine(depPath, Config.pkgFile).Replace('\\', '/');
+                        if(File.Exists(pkgPath) && !pkgs.ContainsKey(depPath)) {
+                            pkgs.Add(depPath,pkgPath);
+                        }
+                    }
                 }
                 foreach(var str in Directory.GetDirectories(currentPath)) {
                     iterDirectory.Enqueue(str);
@@ -46,23 +57,32 @@ public static class AssetsBundleBuild {
 
         var manifest = BuildPipeline.BuildAssetBundles(Config.assetPath, bundleBuilds.ToArray(), BuildAssetBundleOptions.ChunkBasedCompression, EditorUserBuildSettings.activeBuildTarget);
         for(int i = 0; i < bundleBuilds.Count; i++) {
-            var allDeps = manifest.GetAllDependencies(bundleBuilds[i].assetBundleName + Config.bundleExtend);
-            StreamWriter depFile = new StreamWriter(Config.assetPath + bundleBuilds[i].assetBundleName.ToLower() + Config.depExtend);
+            AssetsBundleInfo info = new AssetsBundleInfo();
+            var bundleName = bundleBuilds[i].assetBundleName;
+            var allDeps = manifest.GetAllDependencies(bundleName + Config.bundleExtend);
             for(int j = 0; j < allDeps.Length; j++) {
-                depFile.WriteLine(allDeps[j].ToLower().Replace(Config.assetPath, "").Replace(Config.bundleExtend, ""));
+                info.deps.Add(allDeps[j].ToLower().Replace(Config.assetPath, "").Replace(Config.bundleExtend, ""));
             }
-            depFile.Flush();
-            depFile.Close();
+            var allAssetsName = bundleBuilds[i].assetNames;
+            for(int j = 0; j <allAssetsName.Length; j++) {
+                info.allAssets.Add(allAssetsName[j].Replace(bundleName + "/","").Replace("Assets/",""));
+            }
+
+            string jsonInfo = JsonMapper.ToJson(info);
+            File.WriteAllText(Config.assetPath + bundleName + Config.depExtend,jsonInfo);
         }
+        
 
         pkgs.Clear();
         bundleBuilds.Clear();
         bundlePkgs.Clear();
         AssetDatabase.Refresh();
 
+        var manifestFile =  Directory.GetFiles(Config.assetPath, "*" + Config.manifestExtend,SearchOption.AllDirectories);
+        for(int i = 0; i < manifestFile.Length; i++) {
+            File.Delete(manifestFile[i]);
+        }
         File.Delete(Path.Combine(Config.assetPath, "StreamingAssets").Replace('\\', '/'));
-        File.Delete(Path.Combine(Config.assetPath, "StreamingAssets"+Config.manifestExtend).Replace('\\', '/'));
-
         System.GC.Collect();
     }
 
@@ -75,6 +95,7 @@ public static class AssetsBundleBuild {
         var pkgJson = JsonMapper.ToObject(File.ReadAllText(pkg));
         var buildType = pkgJson["type"].ToString();
         var buildTarget = pkgJson["target"];
+        var buildDeps = pkgJson["deps"];
         Debug.Log(pkg);
 
         List<string> bundleFiles = new List<string>();
@@ -101,6 +122,10 @@ public static class AssetsBundleBuild {
             }
         }
 
+        if(bundleFiles.Count==0) {
+            return;
+        }
+        
         if(buildType == buildTypes[0]) {
             // build bundle
             AssetBundleBuild bundleBuild = new AssetBundleBuild();

@@ -89,7 +89,7 @@ namespace Game.Basic {
                 newLayer.layerMixer = AnimationLayerMixerPlayable.Create(graph);
                 newLayer.defaultAnim = layer["default"].ToString();
                 outputMixer.AddInput(newLayer.layerMixer, 0, 1);
-                // load clips
+                // load clips 加载单个的clip
                 var clipArray = layer["clips"];
                 Dictionary<string, AnimationClipPlayable> playableClips = new Dictionary<string, AnimationClipPlayable>();
                 for(int j = 0; j < clipArray.Count; j++) {
@@ -99,17 +99,19 @@ namespace Game.Basic {
                 }
                 newLayer.playableClips = playableClips;
 
-                // load blendtree
-                List<AnimationBlend2DPlayable> blendPlayables = new List<AnimationBlend2DPlayable>();
+                // load blendtree 加载2D混合树
+                List<IAnimaBlendTree> blendPlayables = new List<IAnimaBlendTree>();
                 var blendTreeArray = layer["blendTree"];
                 for(int j = 0; j < blendTreeArray.Count; j++) {
                     var blendTree = blendTreeArray[j];
-                    var newBlendPlayable = new AnimationBlend2DPlayable();
+                    // var newBlendPlayable = new AnimDirectBlender();
+                    var newBlendPlayable = new AnimComposeBlender();
                     newBlendPlayable.name = blendTree["name"].ToString();
                     newBlendPlayable.parameterName = blendTree["parameter"].ToString();
                     newBlendPlayable.mixer = AnimationMixerPlayable.Create(graph);
                     newBlendPlayable.clipInfos = new List<Blend2DClipInfo>();
 
+                    // 
                     var blendClips = blendTree["blend"];
                     for(int k = 0; k < blendClips.Count; k++) {
                         var item = blendClips[k];
@@ -120,8 +122,10 @@ namespace Game.Basic {
                             newBlendPlayable.AddClip(newClipPlayable, newPos);
                         }
                     }
+                    newBlendPlayable.CalculateLimitPos();
+                    
                     for(int k = 0; k < newBlendPlayable.clipInfos.Count; k++) {
-                        newBlendPlayable.mixer.AddInput((AnimationClipPlayable)newBlendPlayable.clipInfos[k].clip, 0);
+                        newBlendPlayable.mixer.AddInput((AnimationClipPlayable)newBlendPlayable.clipInfos[k].Clip, 0);
                     }
                     blendPlayables.Add(newBlendPlayable);
                 }
@@ -136,7 +140,7 @@ namespace Game.Basic {
         public string current;
         public AnimationLayerMixerPlayable layerMixer;
         public Dictionary<string, AnimationClipPlayable> playableClips;
-        public List<AnimationBlend2DPlayable> blendClips;
+        public List<IAnimaBlendTree> blendClips;
         public readonly static Vector2 normalVector = Vector2.up;
         private int currentIndex;
         private int crossIndex;
@@ -153,6 +157,7 @@ namespace Game.Basic {
                     layerMixer.DisconnectInput(j);
                 }
                 layerMixer.ConnectInput(0, clipPlayable, 0, 1);
+                clipPlayable.SetTime(0);
                 current = clipName;
                 return true;
             }
@@ -162,6 +167,7 @@ namespace Game.Basic {
                     for(int j = 0; j < layerMixer.GetInputCount(); j++) {
                         layerMixer.DisconnectInput(j);
                     }
+                    blendClips[i].ResetTime();
                     layerMixer.ConnectInput(0, blendClips[i].mixer, 0, 1);
                     current = clipName;
                     return true;
@@ -182,6 +188,7 @@ namespace Game.Basic {
             if(playableClips.TryGetValue(clipName, out var clipPlayable)) {
                 layerMixer.DisconnectInput(crossIndex);
                 layerMixer.ConnectInput(crossIndex, clipPlayable, 0, 1);
+                clipPlayable.SetTime(0);
                 currentIndex ^= crossIndex;
                 crossIndex ^= currentIndex;
                 currentIndex ^= crossIndex;
@@ -197,10 +204,12 @@ namespace Game.Basic {
                 return true;
             }
 
+            // 搜索blenderTree
             for(int i = 0; i < blendClips.Count; i++) {
                 if(blendClips[i].name == clipName) {
                     layerMixer.DisconnectInput(crossIndex);
                     layerMixer.ConnectInput(crossIndex, blendClips[i].mixer, 0, 1);
+                    blendClips[i].ResetTime();
                     currentIndex ^= crossIndex;
                     crossIndex ^= currentIndex;
                     currentIndex ^= crossIndex;
@@ -228,60 +237,9 @@ namespace Game.Basic {
                 }
 
                 current.paraValue = value;
-                int length = current.clipInfos.Count;
-                NativeArray<float> weights = new NativeArray<float>(length, Allocator.Temp);
-
-                if(value != Vector2.zero && length > 0) {
-                    float tempAngle = math.acos(math.dot(value.normalized, AnimationLayer.normalVector));
-                    tempAngle = value.x >= 0 ? tempAngle : 2 * math.PI - tempAngle;
-                    int pIndex = 0, nIndex = 0;
-                    for(; nIndex < length; nIndex++) {
-                        if(tempAngle < current.clipInfos[nIndex].angle) {
-                            break;
-                        }
-                    }
-                    nIndex %= length;
-                    pIndex = (nIndex - 1 + length) % length;
-                    float mod = 2 * math.PI;
-                    float pWeight = (tempAngle - current.clipInfos[pIndex].angle + mod) % mod;
-                    float nWeight = (current.clipInfos[nIndex].angle - tempAngle + mod) % mod;
-                    weights[pIndex] = pWeight == 0 ? 1 : 1 - pWeight / (pWeight + nWeight);
-                    weights[nIndex] = nWeight == 0 ? 1 : 1 - nWeight / (pWeight + nWeight);
-                }
-
-                for(int j = 0; j < current.clipInfos.Count; j++) {
-                    current.mixer.SetInputWeight(j, weights[j]);
-                }
+                current.CalcuClipsWeight(value);
                 blendClips[i] = current;
             }
         }
-    }
-}
-
-internal struct AnimationClipInfo {
-    public AnimationClip clip;
-    public float speed;
-}
-internal struct Blend2DClipInfo {
-    public IPlayable clip;
-    public float angle;
-}
-
-internal struct AnimationBlend2DPlayable {
-    public string name;
-    public string parameterName;
-    public Vector2 paraValue;
-    public AnimationMixerPlayable mixer;
-    public List<Blend2DClipInfo> clipInfos;
-
-    public void AddClip(IPlayable clip, Vector2 pos) {
-        if(clipInfos == null) {
-            clipInfos = new List<Blend2DClipInfo>();
-        }
-        float cosAngle = math.acos(math.dot(pos.normalized, AnimationLayer.normalVector));
-        clipInfos.Add(new Blend2DClipInfo { angle = pos.x >= 0 ? cosAngle : 2 * math.PI - cosAngle, clip = clip });
-        clipInfos.Sort((x, y) => {
-            return x.angle > y.angle ? 1 : -1;
-        });
     }
 }

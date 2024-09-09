@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Tomlet;
 using Tomlet.Models;
@@ -8,7 +9,6 @@ namespace Game.Basic.UI {
 
     public class UIManager : MonoBehaviour {
         private List<UIPanel> uiPanels;
-        private List<UIElementHandle> uihandles;
         private List<UIPanel> popPanels;
         private List<UIEvent> uiEvents;
         private Dictionary<string, string> uiAssetPaths;
@@ -16,7 +16,6 @@ namespace Game.Basic.UI {
 
         private void Awake() {
             uiPanels = new List<UIPanel>(16);
-            uihandles = new List<UIElementHandle>(8);
             popPanels = new List<UIPanel>(8);
             uiEvents = new List<UIEvent>(8);
             DontDestroyOnLoad(this);
@@ -24,7 +23,6 @@ namespace Game.Basic.UI {
 
         private void OnDestroy() {
             uiPanels.Clear();
-            uihandles.Clear();
             popPanels.Clear();
             uiEvents.Clear();
         }
@@ -72,13 +70,10 @@ namespace Game.Basic.UI {
             TickEvent();
         }
 
-        public UIElementHandle Load(string name) {
+        public void Load(string name,Action<AssetHandle> OnSuccess) {
             if(uiAssetPaths.TryGetValue(name, out var path)) {
-                return new UIElementHandle {
-                    assetHandle = AssetsLoad.Instance.LoadAsync(path),
-                };
+                AssetsLoad.Instance.LoadAsync(path, OnSuccess);
             }
-            return default;
         }
 
         public void Open(string name) {
@@ -99,11 +94,7 @@ namespace Game.Basic.UI {
                 }
             }
             if(uiAssetPaths.TryGetValue(name, out var path)) {
-                uihandles.Add(new UIElementHandle {
-                    name = name,
-                    assetHandle = AssetsLoad.Instance.LoadAsync(path),
-
-                });
+                AssetsLoad.Instance.LoadAsync(path,OnPanelLoadSuccess);
             }
         }
 
@@ -157,26 +148,13 @@ namespace Game.Basic.UI {
         }
 
         private void TickHandle() {
-            for(int i = 0; i < uihandles.Count; i++) {
+            /*for(int i = 0; i < uihandles.Count; i++) {
                 var handle = uihandles[i];
-                if(handle.assetHandle.isSuccessful) {
-                    var panel = Instantiate(handle.assetHandle.GetAsset<GameObject>()).GetComponent<UIPanel>();
-                    panel.name = handle.name;
-                    panel.transform.SetParent(this.transform);
-                    uiPanels.Add(panel);
-                    panel.SetPriority(panel.priority * priorityScale);
-                    if(panel.isPop) {
-                        popPanels.Add(panel);
-                        int secondPriority = 0;
-                        for(int j = 0; j < popPanels.Count; j++) {
-                            secondPriority = Mathf.Max(secondPriority, popPanels[j].secondPriority);
-                        }
-                        panel.secondPriority = secondPriority + 1;
-                        panel.SetPriority(panel.priority * priorityScale + panel.secondPriority);
-                    }
+                if(handle.isSuccessful) {
+                    handle.CheckSuccess();
                     uihandles.Remove(handle);
                 }
-            }
+            }*/
         }
 
         private void TickEvent() {
@@ -190,10 +168,22 @@ namespace Game.Basic.UI {
             }
             uiEvents.Clear();
         }
-    }
 
-    public struct UIElementHandle {
-        public string name;
-        public AssetHandle assetHandle;
+        private void OnPanelLoadSuccess(AssetHandle handle) {
+            var panel = Instantiate(handle.GetAsset<GameObject>()).GetComponent<UIPanel>();
+            panel.name = panel.GetType().Name;
+            panel.transform.SetParent(this.transform);
+            uiPanels.Add(panel);
+            panel.SetPriority(panel.priority * priorityScale);
+            if(panel.isPop){
+                popPanels.Add(panel);
+                int secondPriority = 0;
+                for(int j = 0; j < popPanels.Count; j++) {
+                    secondPriority = Mathf.Max(secondPriority, popPanels[j].secondPriority);
+                }
+                panel.secondPriority = secondPriority + 1;
+                panel.SetPriority(panel.priority * priorityScale + panel.secondPriority);
+            }
+        }
     }
 }

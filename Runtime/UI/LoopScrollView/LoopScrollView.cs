@@ -37,7 +37,6 @@ namespace Game.Basic.UI {
         private List<ScrollItem> itemList;
 
         public override void OnInitialize() {
-            base.OnInitialize();
             itemList = new List<ScrollItem>();
             scrollView = GetComponent<ScrollRect>();
             tempDataArray = new List<ScrollItem>();
@@ -57,8 +56,7 @@ namespace Game.Basic.UI {
             Content.pivot = new Vector2(0f, 1f);
 
         }
-
-
+        
         public void Update() {
             if(preAnchorPostion != Content.anchoredPosition) {
                 var deltaPos = Content.anchoredPosition - preAnchorPostion;
@@ -85,7 +83,7 @@ namespace Game.Basic.UI {
 
         public void SetData<T>(List<T> list) {
             dataArray = list;
-
+            ElementMatch();
             Arrange();
         }
 
